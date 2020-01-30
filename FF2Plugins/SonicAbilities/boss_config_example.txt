@@ -1,0 +1,396 @@
+	"abilityX"
+	{
+		"name"		    "passive_roll"
+		
+		"arg1"			"-1" //the key used to enable/disable the ability
+		//-1 = passive the ability is active all the time
+		//0 = attack
+		//1 = attack2
+		//2 = attack3
+		//3 = reload
+		"arg2"			"27" //flags for the effects this ability has (add together for desired effect)
+		//1 = allow jumping while rolling and +duck rolling
+		//2 = being airborne disables the ability (requires the above flag) (if the ability is passive it gets renabled upon landing)
+		//4 = disable the ability while swimming (if the ability is passive it gets renabled when not swimming)
+		//8 = the roll can inflict damage with enough speed (see roll_damage ability for damage configurations)
+		//16 = go into a rolling state similar to spin_dash while holding +duck with enough speed
+		//32 = for the above, makes it that +duck only has to be pressed once to enter and remain rolling
+		//64 = rage drain for the main roll can be continued while under the rage requirements (the roll will end upon draining below the minimum rage without this)
+		//128 = rage drain for the +duck roll can be continued while under the rage requirements (the roll will end upon draining below the minimum rage without this)
+		//if arg1 = -1 and flag 16 is active then args 20-59 applies to the +duck roll instead, otherwise they're shared
+		
+		//rage drain, has no effect on the normal roll if it's passive
+		"arg3"			"10.0" //minimum rage needed to enter rolling modes
+		"arg4"			"0.02"	//rage drain
+		
+		//max speed
+		"arg5"			"1350.0" //max speed on land
+		"arg6"			"1350.0" //max speed in air
+		"arg7"			"400.0" //max speed in water
+		//acceleration
+		"arg8"			"40.0" //acceleration on land
+		"arg9"			"20.0" //acceleration in air
+		"arg10"			"20.0" //acceleration in water
+		//decceleration - this force is constantly applied even when accelerating
+		"arg11"			"-10.0" //decceleration on land
+		"arg12"			"-4.0" //decceleration in air
+		"arg13"			"-6.0" //decceleration in water
+		//+duck roll stuff
+		"arg14"			"5.0 ; 7.5" //min penalty threshold and max turn rate, any turn faster than the min amount will give a speed reduction
+		"arg15"			"0.75" //turn rate speed penalty multiplier
+		"arg16"			"0.2" //turn rate multiplier while airborne
+		"arg17"			"0.6" //turn rate multiplier while in water
+		"arg18"			"250.0" //minimum speed needed to enter a roll, (if roll is set to passive and you're moving lower than this speed, you'll crouch walk normally)
+		//turning assist for passive_roll, helps the boss make turns at higher speeds
+		//this only applies on turns that are 100 degrees sharp or less
+		"arg19"			"1.5" //the rate at which the boss' momentum will turn in the direction they're moving
+		"arg20"			"0.2" //turn rate multiplier while airborne
+		"arg21"			"0.6" //turn rate multiplier while in water
+		
+		//other stuff
+		"arg22"			"2" //rolling weapon restrictions, 0 = none, 1 = prevents firing any weapon rolling, 2 = only melee can fire while rolling
+		"arg23"			"28 ; 800.0" //addconds to apply while rolling: (TFCOND ; MinSpeedNeeded)
+		"arg24"			"6" //end/disable the roll while the boss suffers from any one of these kinds of stuns (add together for desired effect)
+		//1 - slowdown stuns
+		//2 - thirdperson stun
+		//4 - completely immobilizing third person stun
+		//8 - ghost spook stuns
+		"arg25"			"13" //Dynamic Defaults only, disables the use of these abilities during a roll(add together for desired effect)
+		//1 = super jump
+		//2 = teleport (yeah I'd always disable this but anyway)
+		//4 = weighdown
+		//8 = parachute
+		
+		//rolling damage and enemy interaction (requires arg2 to have flag 8)
+		"arg26"			"1"	//allow the boss to roll/dash through enemies at high enough speeds(similar to saxton_lunge)
+		"arg27"			"1"	//same as arg27 but for buildings
+		"arg28"			"0.75" //multiplies the boss' speed by this much upon rolling into an enemy with enough speed to damage/go through
+		
+		//audio
+		"arg40"			"player/resistance_heavy3.wav" //plays everytime the player switches to roll mode
+		
+		//graphical
+		"arg50" "" //model to use when rolling (leave blank to use its default model)
+		"arg51" "kart_idle" //animation name to use for the above model (leave blank for no animation and model)
+		"arg52" "0.8" //loop the animation every x seconds (0.0 disables this);
+		"arg53" "1.2" //rate at which the model rolls during a roll, scales with current speed (0.0 disables this)
+		"arg54"	"-0.4"	//horizontal offset relative to arg50's current model angle, negative numbers "pull" the model closer to its centre
+		"arg55"	"-0.3" //height offset relative to arg 50's current model angle, positive numbers "pull" the model closer to its centre
+		"arg56"	"-10.0" //height offset for arg 50's model
+		"arg58"	"rockettrail" //particle effect to attatch to the player while rolling fast enough to hurt
+		"arg59"	"-110.0"	//the angle offset of arg65's particle (negatives bring it downward, positives up)
+		
+		//hud and text
+		"arg60"	"0.68" //the vertical position of the hud message 0.0 = the top of the screen
+		"arg61"	"Roll not ready" // cooldown message
+		"arg62"	"Roll ready press DUCK! (%.0f%% Rage)" // ready to use message
+		"arg63"	"Roll unavaliable (%.0f%% Rage)" // cannot be use currently because of various reasons
+		"arg64"	"Roll active" // active
+		
+		"arg65"	"Cannot roll while stunned!" //error message for trying to roll while stunned
+		"arg66"	"Cannot roll in air/water!" //error message when attempting to use this ability in air or water when it's configured not to
+		"arg67"	"Not enough rage to roll!" //error message when attempting to use this ability without enough rage
+		
+		//debug
+		"arg99"	"0"	//tells the boss their current rolling speed during passive_roll
+		
+		"plugin_name"	"ff2_sonicability"
+	}
+	"abilityX"
+	{
+		"name"			"spin_dash"
+		"arg1"			"2" //the key used to activate the ability
+		//0 = attack
+		//1 = attack2
+		//2 = attack3
+		//3 = reload
+		"arg2"			"9" //what effects this ability uses and other smaller stuff (add together for desired effects)
+		//1 = dash cooldown starts when you start to roll slower than arg8's setting or when you stop rolling (whichever is sooner)
+		//2 = dash cannot be activated while airborne (if the charge up sequence is used then this applies to the charge not the dash)
+		//4 = dash cannot be activated while swimming (if the charge up sequence is used then this applies to the charge not the dash)
+		//8 = the roll can inflict damage with enough speed (see roll_damage ability for damage configurations)
+		
+		"arg3"          "5.0" //the time in seconds it takes for the ability to recharge
+		"arg4"			"8.0"	//how long until rolling ends itself automatically
+		"arg5"			"900.0" //the base launch speed
+		"arg6"			"1800.0" //the max launch speed (used for charging up the dash)
+		"arg7"			"400.0" //if your speed becomes less than this the roll ends
+		"arg8"			"1000.0" //if the boss' dash is currently going this fast or lower, allow the player to jump out of the dash early
+		"arg9"			"-5.0" //how quickly the roll decelerates on the ground
+		"arg10"			"-1.5" //how quickly the roll decelerates in the air
+		"arg11"			"-10.0" //how quickly the roll decelerates in water
+		"arg12"			"0.8" //launch speed multiplier in the air
+		"arg13"			"0.8" //launch speed multiplier in water
+		"arg14"			"5.0 ; 7.5" //min penalty threshold and max turn rate, any turn faster than the min amount will give a speed reduction
+		"arg15"			"0.75" //turn rate speed penalty multiplier
+		"arg16"			"0.2" //turn rate multiplier while airborne
+		"arg17"			"0.6" //turn rate multiplier while in water
+		"arg18"			"2" //rolling weapon restrictions, 0 = none, 1 = prevents firing any weapon rolling, 2 = only melee can fire while rolling
+		"arg19"			"28 ; 800.0 ; 16 ; 1400.0" //addconds to apply while rolling: (TFCOND ; MinSpeedNeeded)
+		"arg20"			"6" //end the dash/charge up early if the boss suffers from any one of these kinds of stuns (add together for desired effect)
+		//1 - slowdown stuns
+		//2 - thirdperson stun
+		//4 - completely immobilizing third person stun
+		//8 - ghost spook stuns
+		"arg21"			"13" //Dynamic Defaults only, disables the use of these abilities during a roll(add together for desired effect)
+		//1 = super jump
+		//2 = teleport (yeah I'd always disable this but anyway)
+		//4 = weighdown
+		//8 = parachute
+		
+		
+		//rolling damage and enemy interaction (requires arg2 to have flag 2)
+		"arg23"			"1"	//allow the boss to roll/dash through enemies at high enough speeds(similar to saxton_lunge)
+		"arg24"			"1"	//same as arg23 but for buildings
+		"arg25"			"0.75" //multiplies the boss' speed by this much upon rolling into an enemy with enough speed to damage/go through
+		
+
+		//charging up rolling_dash(if arg 5 & 6 are the same, the charging sequence is skipped completely)
+		//note that you cannot attack at all while charging up
+		//also note dynamic default abilities are disabled during this sequence
+		"arg33"		"2" //button to press to release the charge
+		//0 = +attack
+		//1 = +attack2
+		//2 = +attack3
+		//3 = +reload
+		//4 = +jump
+		"arg34"		"4" //button to press to build charge
+		//0 = +attack
+		//1 = +attack2
+		//2 = +attack3
+		//3 = +reload
+		//4 = +jump
+		"arg35"          "0.2" //how much charge is built up when taping the build charge button (1.0 = 100% charge)
+		"arg36"         "0.0015" //how much charge is built while holding down the build charge button
+		"arg37"         "-0.005" //how much charge is built while not holding or taping the charge button
+		"arg38"			"28 ; 42" //addconds to give while charging up
+		"arg39"			"0.5" //charge's damage multiplier against enemies that touch it (damage is based on roll_damage ability and how much charge is built) (0.0 = disabled)
+		
+		//audio
+		"arg40"			"player/pl_scout_jump1.wav" //plays when launching
+		"arg41"			"player/resistance_heavy3.wav" //plays everytime the player builds up charge
+		"arg42"			"100" //arg41's base pitch (128 is around normal, 255 is probably the max)
+		"arg43"			"156" //arg41's max pitch (pitch is based on the current built up charge)
+		
+		//graphical
+		"arg50" "" //model to use when charging (leave blank to use its default model)
+		"arg51" "kart_idle" //animation name to use for the above model (leave blank for no animation and model)
+		"arg52" "0.8" //loop the animation every x seconds (0.0 disables this)
+		"arg53" "1.0" //rate at which the model rolls during a roll, scales with current speed (0.0 disables this)
+		"arg54" "-90.0" //the starting vertical angle the model appears at
+		"arg55"	"-0.4"	//horizontal offset relative to arg50's current model angle, negative numbers "pull" the model closer to its centre
+		"arg56"	"-0.3" //height offset relative to arg 50's current model angle, positive numbers "pull" the model closer to its centre
+		"arg57"	"-10.0" //height offset for arg 50's model
+		
+		"arg58" "" //model to use when building charge (leave blank to use its default model)
+		"arg59" "kart_idle" //animation name to use for the above model (leave blank for no animation and model)
+		"arg60" "0.8" //loop the animation every x seconds (0.0 disables this)
+		"arg61" "1.0" //rate at which the model rolls while charging a dash, scales with built up launching power (0.0 disables this)
+		"arg62" "-90.0" //the starting vertical angle the model appears at
+		"arg63"	"-0.4"	//horizontal offset relative to arg 57's current model angle, negative numbers "pull" the model closer to its centre
+		"arg64"	"0.3" //height offset relative to arg 57's current model angle, positive numbers "pull" the model closer to its centre
+		"arg65"	"-10.0" // //height offset for arg 57's model
+		
+		"arg66"	"ExplosionCore_MidAir" //particle effect for launching
+		"arg67"	"rockettrail" //particle effect to attatch to the player while rolling fast enough to hurt
+		"arg68"	"-110.0"	//the angle offset of arg65's particle (negatives bring it downward, positives up)
+		
+		//hud and text
+		"arg70"	"1" //if set to 1 the cooldown time will be displayed as a percentage instead of seconds
+		"arg71"	"0.77" //the vertical position of the hud message 0.0 = the top of the screen
+		"arg72"	"Dash not ready %.0f%%" // cooldown message
+		"arg73"	"Dash ready press ATTACK3!" // ready to use message
+		"arg74"	"Dash unavaliable" // recharged but cannot be used because of certain conditions
+		"arg75"	"Charge %.0f%%" // Text for when building charge
+		"arg76"	"Tap Jump to charge up.\nPress Attack3 to blast off!" // message to display when activating the charge
+		"arg77"	"Cannot dash in air/water!" //error message for trying to start a dash in the air or water and are not allowed
+		"arg78"	"Cannot dash while stunned!" //error message for trying to dash while stunned
+		
+		
+		//other
+		"arg99"	"1" //debug mode, gives info about rolling speed and prints details when hitting an enemy
+		//also prints messages in the console about less important things
+		
+		"plugin_name"	"ff2_sonicability"
+	}
+	"abilityX"
+	{
+		"name"		    "homing_attack"
+		"arg1"			"0" //the key used to activate the ability
+		//0 = attack
+		//1 = attack2
+		//2 = attack3
+		//3 = reload
+		
+		//function
+		"arg3"			"5.0"	//ability cooldown
+		"arg4"			"30.0"	//rage cost (0.0 disables this)
+		"arg5"			"1000.0" //search distance to home
+		"arg6"			"1.0"	//wind up before launching into a target
+		"arg7"			"0.4"	//added to the wind up time, when there's this much time left on the wind up we get our target and alert them
+		"arg8"			"20.0"	//vertical velocity applied during wind up
+		"arg9"			"800.0" //speed to chase target
+		"arg10"			"1.25" //how long to chase target (0.0 makes it function as a launch)
+		"arg11"			"0.4" //how long to chase without a target (0.0 makes it function as a launch)
+		"arg12"			"-181.0"	//vertical rotation to the launch the user if no target was found (set lower than -180.0 or higher than 180.0 to use the player's aim instead)
+		"arg13"			"500.0"	//how high to lift the user after hitting a surface/player
+		"arg14"			"0.5"	//inherit this much horizontal momentum after hitting a surface/player
+		"arg15"			"2.0"	//stun duration to the boss after hitting a surface/player
+		"arg16"			"96" //stun flags given to the boss after hitting a surface/player (add together for desired effect)
+		//2 - completely stunned (third person full stun)
+		//4 - prevents forward/backward movement (apparently)
+		//8 - sandman long distance stun noise
+		//32 - no sound or particle (might not work properly since jungle inferno)
+		//64 - third person stun
+		//128 - ghost particles
+		//256 - sandman normal stun noise
+		
+		//damage
+		"arg20"			"126.0" //damage on impact against a human target
+		"arg21"			"216.0" //damage on impact against a non human target
+		"arg22"			"1" //set this to 1 if arg20's configured damage is doing too much (leave as 1 if you're on the default version of ff2)
+		"arg23"			"300.0" //knockback to apply to the player when hit
+		
+		//audio
+		"arg30"			"player/pl_scout_jump1.wav" //plays when launching
+		"arg31"			"player/resistance_heavy3.wav" //plays during wind up
+		"arg32"			"player/doubledonk.wav" //plays when colliding with an enemy
+		"arg33"			"weapons/sentry_spot.wav" //plays to the target and user of the homing attack upon finding a target
+		"arg34"			"0"	//changes where arg 32's sound is played from
+		//0 = the location of the attacker at the moment of impact
+		//1 = from both the attacker and victim (since the sound is played twice it may end up being very loud)
+		//2 = from the attacker
+		//3 = from the victim
+		
+		//graphical
+		"arg40" "" //model to use during homing and windup (leave blank to use its default model)
+		"arg41" "kart_idle" //animation name to use for the above model (leave blank for no animation and model)
+		"arg42" "0.8" //loop the animation every x seconds (0.0 disables this)
+		"arg43" "15.0" //rate at which the model rolls
+		"arg44"	"-0.4"	//horizontal offset relative to arg40's current model angle, negative numbers "pull" the model closer to its centre
+		"arg45"	"-0.3" //height offset relative to arg 40's current model angle, positive numbers "pull" the model closer to its centre
+		"arg46"	"10.0" //height offset for arg 40's model
+		"arg47"	"ExplosionCore_MidAir" //particle effect for launching
+		"arg48"	"rockettrail" //particle effect to attatch to the player while homing
+		"arg49"	"-110.0"	//the angle offset of arg48's particle (negatives bring it downward, positives up)
+		
+		//hud and text
+		"arg50"	"1" //if set to 1 the cooldown time will be displayed as a percentage instead of seconds
+		"arg51"	"0.72" //the vertical position of the hud message 0.0 = the top of the screen
+		"arg52"	"Homing Attack not ready %.0f%%" // cooldown message
+		"arg53"	"Homing Attack ready press RELOAD! (%.0f%% Rage)" // ready to use message
+		"arg54"	"Homing Attack unavaliable (%.0f%% Rage)" // recharged but cannot be used because of certain conditions
+
+		"arg56"	"Cannot home while stunned!" //error message for trying to home while stunned
+		"arg57"	"Not enough rage to home!" //error message for trying to home without enough rage
+		"arg59"	"sniperrifle"	//override the killicon that homing attack kills use
+		
+		"arg99"	"1"	//debug mode prints messages when hitting an enemy,
+		//homing onto a target and dealing damage with the homing attack
+		
+		"plugin_name"	"ff2_sonicability"
+	}
+	"abilityX"
+	{
+		//this "ability" controls how damage and knockback works for rolling into an enemy with passive_roll, spin_dash and spin_jump
+		"name"		    "roll_damage"
+		
+		//for passive_roll and spin_dash
+		"arg1"			"510.0" //the minimum amount of speed needed to inflict damage and go through enemies while rolling
+		"arg2"			"0.1" //the roll's damage per unit of speed (0.1 = 100 damage at 1000 hu/s)
+		"arg3"			"10.0" //the minimum damage the roll can deal in a single hit
+		"arg4"			"149.0" //the maximum damage the roll can deal in a single hit
+		"arg5"			"1" //set to 1 if the configured damage is doing several times more than it should (leave this as 1 if you're on the default ff2 version)
+		"arg6"			"0.25" //horizontal knockback applied to enemies you roll into per unit of speed (0.1 = 100.0 hus of knockback at 1000 hu/s)
+		"arg7"			"0.2" //vertical knockback applied to enemies you roll into per unit of speed (0.1 = 100.0 hus of knockback at 1000 hu/s)
+		"arg8"			"100.0" //minimun knockback force that the roll can apply
+		"arg9"			"600.0" //maximum knockback force that the roll can apply
+		
+		//audio
+		"arg20"			"player/doubledonk.wav" //plays upon hitting an enemy with enough speed to harm them
+		"arg21"			"0"	//changes where arg10's sound is played from:
+		//0 = the location of the attacker at the moment of impact
+		//1 = from both the attacker and victim (since the sound is played twice it may end up being very loud)
+		//2 = from the attacker
+		//3 = from the victim
+		
+		//for spin_jump
+		"arg30"			"500.0" //the minimum amount of speed needed to inflict damage and go through enemies during spin_jump
+		"arg31"			"-300.0" //the minimum amount of fall speed needed to inflict a goomba stomp
+		"arg32"			"0.05" //the jump's damage per unit of speed
+		"arg33"			"5.0" //the minimum damage the jump can deal in a single hit
+		"arg34"			"100.0" //the maximum damage the jump can deal in a single hit
+		"arg35"			"1" //set to 1 if the configured damage is doing several times more than it should (leave this as 1 if you're on the default ff2 version)
+		"arg36"			"0.25" //knockback applied to enemies you roll into per unit of speed (0.1 = 100.0 hus of knockback at 1000 hu/s)
+		"arg37"			"-0.6" //horizontal knockback applied to the boss when hitting a target with a spin jump
+		"arg38"			"-0.5" //vertical knockback applied to the boss when hitting a target with a spin jump
+		"arg39"			"0.0" //(for arg27) non-zero adds the knockback to the boss' current momentum instead of replacing it
+		"arg40"			"3.0" //damage multiplier for landing on the enemy's head (aka goomba stomp) (1.0 treats this as a spin jump) (0.0 will do nothing on a successful stomp)
+		
+		//audio
+		"arg50"			"player/doubledonk.wav" //plays upon hitting an enemy with spin_jump at any angle
+		"arg51"			"0"	//changes where arg50's sound is played from:
+		//0 = the location of the attacker at the moment of impact
+		//1 = from both the attacker and victim (since the sound is played twice it may end up being very loud)
+		//2 = from the attacker
+		//3 = from the victim
+		"arg52"			"weapons/mantreads.wav" //plays upon hitting an enemy spin_jump from above (arg 50 is used as a fall back if this is blank)
+		"arg53"			"0"	//changes where arg52's sound is played (see arg 51 for more details)
+		
+		//hud
+		"arg60"	"saw_kill"	//overrides the killicon for kills caused by this ability
+		
+		//debug
+		"arg99"	"1"	//prints to console and the boss' chat how much damage they inflicted and the speed they were going at
+		
+		"plugin_name"	"ff2_sonicability"
+	}
+	"abilityX"
+	{
+		"name"			"spin_jump"
+		
+		//ability flags
+		"arg2"			"13" //add the numbers below for the desired effects
+		//1 = apply whenever the boss is airborne instead of only upon jumping
+		//2 = allow entering spin_jump mode when pressing jump while in midair
+		//4 = disable spin_jump upon entering water
+		//8 = allow the spin_jump to inflict damage against enemy players (see roll_damage)
+		
+		"arg3"			"6" //end spin_jump early when under any one of these kinds of stuns (add together for desired effect)
+		//1 - slowdown stuns
+		//2 - thirdperson stun
+		//4 - completely immobilizing third person stun
+		//8 - ghost spook stuns
+		
+		//damage and enemy interaction (requires arg2 to have flag 8)
+		"arg23"			"1"	//allow the boss to jump through enemies at high enough speeds(similar to saxton_lunge)
+		"arg24"			"1"	//same as arg23 but for buildings
+		"arg25"			"16 ; -600.0" //addconds to apply while falling: (TFCOND ; MinFallSpeedNeeded)
+		
+		//goomba stomps
+		"arg26"			"2.0"	//stun duration applied to a stomped target
+		"arg27"			"96" //stun flags given to said target (add together for desired effect)
+		//2 - completely stunned (third person full stun)
+		//4 - prevents forward/backward movement (apparently)
+		//8 - sandman long distance stun noise
+		//32 - no sound or particle (might not work properly since jungle inferno)
+		//64 - third person stun
+		//128 - ghost particles
+		//256 - sandman normal stun noise
+		"arg28"			"1.0" //do stomps harm players with shields 1.0 = they don't (they will still get stunned)
+		
+		//audio
+		"arg40"			"player/resistance_heavy3.wav" //plays whenever entering spin_jump
+		
+		//graphical
+		"arg50" "" //model to use during spin_jump (leave blank to use its default model)
+		"arg51" "kart_idle" //animation name to use for the above model (leave blank for no animation and model)
+		"arg52" "0.8" //loop the animation every x seconds (0.0 disables this)
+		"arg53" "12.0" //rate at which the model rolls during a roll
+		"arg54" "-90.0" //the starting vertical angle the model appears at
+		"arg55"	"-0.4"	//horizontal offset relative to arg50's current model angle, negative numbers "pull" the model closer to its centre
+		"arg56"	"-0.3" //height offset relative to arg 50's current model angle, positive numbers "pull" the model closer to its centre
+		"arg57"	"-5.0" //height offset for arg 50's model
+
+		"plugin_name"	"ff2_sonicability"
+	}
