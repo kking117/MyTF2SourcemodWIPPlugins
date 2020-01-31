@@ -65,10 +65,6 @@ public Action:OnTakeDamage(client, &attacker, &inflictor, &Float:damage, &damage
 	new String:weaponname[256];
 	if(IsValidClient(client))
 	{
-		if(IsValidEntity(weapon))
-		{
-			GetEntityClassname(weapon, weaponname, sizeof(weaponname));
-		}
 		if((damagetype & DMG_BURN) && (damagetype & DMG_PREVENT_PHYSICS_FORCE))
 		{
 			if(IsValidClient(attacker))
